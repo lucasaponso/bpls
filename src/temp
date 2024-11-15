@@ -1,0 +1,140 @@
+    // // Assume inter_payload needs to be represented as a fixed-point value with 3 decimal precision
+    // int inter_payload = (int)(data.target_payload);  // Shift decimal 3 places
+    
+    // inter_payload = inter_payload / 5;
+
+    // char *unit_measure = "M";
+    // char payload[128];
+    // unsigned char payload_data[3];  // Array to hold 3-byte payload
+
+    // for (int i = 0; i < 5; i++)
+    // {
+    //     // Convert inter_payload to 3-byte representation
+    //     payload_data[0] = (inter_payload >> 16) & 0xFF;  // Extract the highest byte
+    //     payload_data[1] = (inter_payload >> 8) & 0xFF;   // Extract the middle byte
+    //     payload_data[2] = inter_payload & 0xFF;          // Extract the lowest byte
+
+    //     // Prepare the full payload to send
+    //     // snprintf(payload, sizeof(payload), "%s %.2f %s %s", "Payload:", (float)inter_payload / 1000, unit_measure, data.unit_number);
+
+        
+    //     // Send the 3-byte payload for the inter_payload part
+    //     if (send(sock, payload_data, sizeof(payload_data), 0) > 0)
+    //     {
+    //         printf("Successfully sent 3-byte bucket payload: %d, %s %s\n", inter_payload, unit_measure, data.unit_number);
+    //         inter_payload++;  // Update inter_payload for next iteration (increment as needed)
+    //     }
+    //     else
+    //     {
+    //         printf("Error: unable to send 3-byte bucket payload: %.2f, %s %s\n", (float)inter_payload / 1000, unit_measure, data.unit_number);
+    //     }
+    // }
+0x7C 
+0x0D 0x00 
+0x00 0x00 
+0x09 0x01 
+0x2B 0x00 0x00 0x4D 0x30 0x32 0x34 0x37 
+0xDF 0xA8 
+
+
+
+// void pay_load_asm_packet(send_payload_interval data)
+// {
+//     int index = 0;
+//     int bytes_sent;
+
+//     uint16_t msg_id = 0x0901;
+//     uint8_t preamble = 0x7C;
+    
+
+//     uint8_t seq_id_low = (uint8_t)(sequence_id & 0xFF); //get low byte of sequenceID
+//     uint8_t seq_id_hi = (uint8_t)((sequence_id >> 8) & 0xFF); //get high byte of sequenceID
+
+//     uint8_t msg_id_low = (uint8_t)((msg_id >> 8) & 0xFF); //get low byte of MSG_ID
+//     uint8_t msg_id_hi = (uint8_t)(msg_id & 0xFF); //get high byte of MSG_ID
+    
+//     uint8_t target_payload_bytes[3];
+//     target_payload_bytes[0] = (uint8_t)(data.target_payload & 0xFF);  //get first byte of target_payload
+//     target_payload_bytes[1] = (uint8_t)((data.target_payload >> 8) & 0xFF);  // get Middle byte of target_payload
+//     target_payload_bytes[2] = (uint8_t)((data.target_payload >> 16) & 0xFF);  // get High byte of target_payload
+
+//     uint8_t unit_measure_byte = data.unit_measure;
+    
+
+//     uint16_t msg_length = sizeof(seq_id_low) + sizeof(seq_id_hi) + sizeof(msg_id_low) + sizeof(msg_id_hi) + sizeof(target_payload_bytes) + sizeof(unit_measure_byte) + (strlen(data.unit_number) + 1); //calculate msg length
+
+//     uint8_t msg_length_low = (uint8_t)(msg_length & 0xFF); //get length low of msg_len
+//     uint8_t msg_length_hi = (uint8_t)((msg_length >> 8) & 0xFF); //get length high of msg len
+
+//     uint8_t send_arr[msg_length + sizeof(msg_length) + sizeof(preamble)]; //init array to be sent, with sizeof(msg_length) + msg_length + sizeof(preamble)
+//     memset(send_arr, 0, sizeof(send_arr)); //init array with 0's
+
+
+//     send_arr[index++] = preamble;
+
+//     send_arr[index++] = msg_length_low;
+//     send_arr[index++] = msg_length_hi;
+
+//     send_arr[index++] = seq_id_low;
+//     send_arr[index++] = seq_id_hi;
+
+//     send_arr[index++] = msg_id_low;
+//     send_arr[index++] = msg_id_hi;
+
+    
+//     for (int i = 0; i < 3; i++) 
+//     {
+//         send_arr[index++] = target_payload_bytes[i];
+//     }
+
+//     send_arr[index++] = unit_measure_byte;
+
+//     for (int i = 0; i < 6; i++) 
+//     {
+//         if (data.unit_number[i] == '\0') 
+//         {
+//             break;  // Stop copying at null terminator
+//         }
+//         send_arr[index++] = (uint8_t)data.unit_number[i];
+//     }
+
+//     uint16_t checksum = slipcrc(send_arr, index);
+
+//     send_arr[index++] = (uint8_t)((checksum >> 8) & 0xFF);
+//     send_arr[index++] = (uint8_t)(checksum & 0xFF);
+
+//     for (int i = 0; i < index; i++) 
+//     {
+//         printf("0x%02X ", send_arr[i]);
+//     }
+//     printf("\n");
+
+//     if ((bytes_sent = send_packet(send_arr, index)) != -1)
+//     {
+//         sequence_id++;
+//         printf("sent %zd bytes\n", bytes_sent);    
+//     }
+//     else
+//     {
+//         printf("failed to send\n");
+//     }
+// }
+
+// int send_packet(uint8_t *send_arr, int length)
+// {
+//     ssize_t bytes_sent = send(sock, send_arr, length, 0);
+//     return bytes_sent;
+// }
+
+43
+
+0x7C 
+0x0D 0x00
+0x00 0x00 
+0x09 0x01 
+0x30 0x34 0x33 0x4D 0x30 0x32 0x34 0x37 0x00 
+0xCE 0x0A 
+
+
+48, 52, 51
+0, 4, 3

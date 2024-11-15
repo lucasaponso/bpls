@@ -6,7 +6,7 @@ CFLAGS = -pthread
 TARGET = bin/bpls
 
 # Source files
-SRC = src/main.c
+SRC = src/main.c src/pay_load_adv.c src/rx_thread.c src/queue.c src/socket.c src/crc.c
 
 # Object files
 OBJ = $(SRC:.c=.o)
