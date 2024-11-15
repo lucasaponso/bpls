@@ -11,7 +11,6 @@
 #define PREAMBLE 0x7C
 #define TCP_MESSAGE_SIZE 1500
 #define BUFFER_SIZE 1500
-#define CHECKSUM 0xF0B8
 
 #define MAX_STRINGS 12
 
@@ -25,6 +24,7 @@ typedef enum {
 void process_packet(uint8_t output_buffer[TCP_MESSAGE_SIZE], int index);
 truck_begin_loading process_0801(uint8_t output_buffer[TCP_MESSAGE_SIZE], int len);
 char ** validate_data_buffer(uint8_t data_buffer[TCP_MESSAGE_SIZE], int len);
+truck_end_loading process_0802(uint8_t output_buffer[TCP_MESSAGE_SIZE], int len);
 
 void* rx_thread_init(void* arg) 
 {    
@@ -113,21 +113,23 @@ void* rx_thread_init(void* arg)
 
 void process_packet(uint8_t output_buffer[TCP_MESSAGE_SIZE], int len)
 {
-    // Enqueue some elements
-
     int index = 5;
     uint8_t data_buffer[TCP_MESSAGE_SIZE];
-    uint16_t msg_id = *(uint16_t *)&output_buffer[index];
+    uint16_t msg_id = *(uint16_t *)&output_buffer[index]; //retrieve msg_id from buffer
     msg_id = ntohs(msg_id);
 
-    // printf("found msg id: %04x\n", msg_id);
     printf("processing %04x msg\n", msg_id);
     
     switch (msg_id)
     {
+        tx_packet p_tx;
+        
         case TRUCK_BEGIN_LOADING:
+        printf("ok\n");
+            p_tx.msg_id = msg_id;
+            printf("ok\n");
             truck_begin_loading packet = process_0801(&output_buffer[index + 2], len - 2);
-            send_payload_interval p_interval;
+            send_bucket_payload p_interval;
 
             strncpy(p_interval.unit_number, packet.unit_number, STRING_SIZE - 1); //copy
             p_interval.unit_number[STRING_SIZE - 1] = '\0';  // Ensure null termination
@@ -137,12 +139,32 @@ void process_packet(uint8_t output_buffer[TCP_MESSAGE_SIZE], int len)
             int target_payload = atoi(packet.target_payload);
             p_interval.target_payload = target_payload / 5;
 
+            printf("ok\n");
+            p_tx.packet_801 = p_interval;
+
             pthread_mutex_lock(&queue_mutex);
-            enqueue(p_interval);
+            enqueue(p_tx);
             pthread_mutex_unlock(&queue_mutex);
             break;
         case TRUCK_END_LOADING:
-            // process_0802(&output_buffer[index + 2], len - 2);
+            printf("msg_id to be implemented...\n");
+            p_tx.msg_id = msg_id;
+            truck_end_loading p_end = process_0802(&output_buffer[index + 2], len - 2);
+            send_final_payload p_final;
+
+            strncpy(p_final.unit_number, p_end.unit_number, STRING_SIZE - 1);
+            p_final.unit_number[STRING_SIZE - 1] = '\0';
+
+            p_final.unit_measure = 'M';
+
+            // memcpy(p_final.final_payload, &final_payload, sizeof(final_payload));  // Copy contents
+
+            p_tx.packet_802 = p_final;
+            
+            // pthread_mutex_lock(&queue_mutex);
+            // enqueue(p_tx);
+            // pthread_mutex_unlock(&queue_mutex);
+
             break;
         case TRUCK_PING_MSG:
             printf("ping msg recieved\n");
@@ -159,7 +181,6 @@ truck_begin_loading process_0801(uint8_t output_buffer[TCP_MESSAGE_SIZE], int le
     
     truck_begin_loading packet;
     char ** strings = validate_data_buffer(output_buffer, len);
-    
     
     strncpy(packet.unit_number, strings[0], STRING_SIZE - 1);
     strncpy(packet.target_payload, strings[1], 3);  // 3 bytes for target_payload
@@ -190,6 +211,22 @@ truck_begin_loading process_0801(uint8_t output_buffer[TCP_MESSAGE_SIZE], int le
 
     return packet;
 }
+
+truck_end_loading process_0802(uint8_t output_buffer[TCP_MESSAGE_SIZE], int len)
+{
+    
+    truck_end_loading packet;
+    char ** strings = validate_data_buffer(output_buffer, len);
+
+    strncpy(packet.unit_number, strings[0], STRING_SIZE - 1);
+    strncpy(packet.payload, strings[1], 3);  // 3 bytes for target_payload
+
+    printf("Unit Number: %s\n", packet.unit_number);
+    printf("Payload: %s\n", packet.payload);
+    
+    return packet;
+}
+
 
 char ** validate_data_buffer(uint8_t data_buffer[TCP_MESSAGE_SIZE], int len)
 {

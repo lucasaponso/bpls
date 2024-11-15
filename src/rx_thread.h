@@ -30,6 +30,11 @@ typedef struct __attribute__((__packed__)) truck_begin_loading { // MessageID 0x
     char elevation[STRING_SIZE];        // Null-terminated string for elevation (e.g., "103.50")
 } truck_begin_loading;
 
+typedef struct __attribute__((__packed__)) truck_end_loading { // MessageID 0x08 01
+    char unit_number[STRING_SIZE];      // Null-terminated string for unit number (e.g., "T151")
+    uint8_t unit_measure;
+    char payload[3];
+} truck_end_loading;
 
 // Function declaration for the thread function
 void* rx_thread_init(void* arg);

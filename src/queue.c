@@ -18,7 +18,7 @@ int isEmpty() {
 }
 
 // Add an element to the queue
-void enqueue(send_payload_interval data) {
+void enqueue(tx_packet data) {
     Node* newNode = (Node*)malloc(sizeof(Node));
     if (!newNode) {
         printf("Memory allocation failed!\n");
@@ -38,17 +38,17 @@ void enqueue(send_payload_interval data) {
 }
 
 // Remove an element from the queue
-send_payload_interval dequeue() 
+tx_packet dequeue() 
 {
     if (isEmpty()) 
     {
         printf("Queue is empty, cannot dequeue.\n");
-        send_payload_interval empty_data = {0}; // Return an empty structure
+        tx_packet empty_data = {0}; // Return an empty structure
         return empty_data;
     }
 
     Node* temp = globalQueue.front;
-    send_payload_interval data = temp->data;
+    tx_packet data = temp->data;
 
     // Move the front pointer to the next node
     globalQueue.front = globalQueue.front->next;
@@ -64,10 +64,10 @@ send_payload_interval dequeue()
 }
 
 // Get the front element of the queue without removing it
-send_payload_interval front() {
+tx_packet front() {
     if (isEmpty()) {
         printf("Queue is empty, no front element.\n");
-        send_payload_interval empty_data = {0}; // Return an empty structure
+        tx_packet empty_data = {0}; // Return an empty structure
         return empty_data;
     }
     return globalQueue.front->data;

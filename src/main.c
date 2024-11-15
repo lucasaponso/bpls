@@ -65,6 +65,7 @@ int main(int argc, char **argv)
     if (get_socket(config) != 0)
     {
         printf("socket crashed\n");
+        return -1;
     }
     
     initQueue();
