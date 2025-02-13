@@ -157,13 +157,13 @@ void process_packet(uint8_t output_buffer[TCP_MESSAGE_SIZE], int len)
 
             p_final.unit_measure = 'M';
 
-            // memcpy(p_final.final_payload, &final_payload, sizeof(final_payload));  // Copy contents
+            memcpy(p_final.final_payload, &final_payload, sizeof(final_payload));  // Copy contents
 
             p_tx.packet_802 = p_final;
             
-            // pthread_mutex_lock(&queue_mutex);
-            // enqueue(p_tx);
-            // pthread_mutex_unlock(&queue_mutex);
+            pthread_mutex_lock(&queue_mutex);
+            enqueue(p_tx);
+            pthread_mutex_unlock(&queue_mutex);
 
             break;
         case TRUCK_PING_MSG:

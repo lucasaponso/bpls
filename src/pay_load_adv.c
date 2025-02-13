@@ -39,7 +39,13 @@ void* pay_load_adv_thread_init(void* arg)
 
             if (data.msg_id == TRUCK_BEGIN_LOADING)
             {
-                pay_load_asm_packet(data.packet_801);
+                for (int i = 0; i < 5; i++)
+                {
+                    pay_load_asm_packet(data.packet_801);
+                    data.packet_801.target_payload++;
+                    sleep(30);
+                }
+                
             }
             else if (data.msg_id == TRUCK_END_LOADING)
             {
@@ -102,8 +108,6 @@ void pay_load_asm_packet(send_bucket_payload data)
     send_arr[index++] = (uint8_t)(checksum & 0xFF);
     send_arr[index++] = (uint8_t)((checksum >> 8) & 0xFF);
 
-    for (int i = 0; i < 5; i++)
-    {
         if (send_packet(send_arr, index) != -1)
         {
             sequence_id++;
@@ -113,8 +117,6 @@ void pay_load_asm_packet(send_bucket_payload data)
         {
             printf("unable to send packet\n");
         }
-        sleep(30);
-    }
 }
 
 
